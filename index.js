@@ -1,29 +1,43 @@
+let ord = [], col = "", game = false, level = 1, wrong = false;
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+const timer = ms => new Promise(res => setTimeout(res, ms))
+
+function play_sound() {
+    const aud = new Audio("sounds/" + col + ".mp3");
+    aud.play().then();
 }
 
-let ord = [], game = false,ans = [];
-
 $(".btn").click(function () {
-    ans.push(this.id);
-    console.log(this.id);
-    const aud = new Audio("sounds/" + this.id + ".mp3");
-    $("#" + this.id).addClass("pressed");
-    aud.play().then(() => {
-        sleep(200).then(() => {});
-        $("#" + this.id).removeClass("pressed");
-    });
-});
+    if (game) {
+        if (this.id === ord.pop()) {
+            col = this.id;
+            play_sound();
+            ani().then();
 
-$(window).keypress(function (e) {
-    if ((e.key === 'A' || e.key === 'a') && !game) {
-        console.log("Level 1");
-        $("#level-title").text('Level 1');
+            if (ord.length === 0) {
+                setTimeout(newLevel,250);
+            }
+
+        } else {
+            col = "wrong";
+            play_sound();
+            ani().then();
+            game = false;
+            $("#level-title").text("Game Over, Press Any Key to Restart");
+            ord = []
+            wrong = true;
+            game = false;
+            over().then();
+        }
+    } else {
+        col = this.id;
+        play_sound();
+        ani().then();
     }
 });
 
 function gen(lev) {
+    ord = []
     for (let i = 0; i < lev; i++) {
         let p = Math.random();
         p *= 4;
@@ -38,13 +52,55 @@ function gen(lev) {
         else if (p === 4)
             ord.push('yellow');
     }
+    console.log(ord);
 }
 
-async function disp() {
-    for (let i = 0; i < ord.length; i++) {
-        let p = '#' + ord[i];
-        $(p).addClass("pressed");
-        await sleep(500);
-        $(p).removeClass("pressed");
+async function ani() {
+
+    $("#" + col).addClass("pressed");
+    await timer(250);
+    $('#' + col).removeClass("pressed");
+}
+
+async function displayColors() {
+    for (let i = ord.length - 1; i >= 0; i--) {
+        col = ord[i];
+        console.log(col);
+        await timer(500);
+        await ani();
     }
+}
+
+$(window).keypress(function (e) {
+    if (e.key === 'A' || e.key === 'a' && !game && !wrong) {
+        console.log("Begin");
+        level = 1;
+        game = true;
+        gen(level);
+        displayColors().then();
+        $("#level-title").text("Level " + level);
+    } else if (wrong) {
+        console.log("New Game");
+        game = true;
+        wrong = false;
+        level = 1;
+        gen(level);
+        displayColors().then();
+        $("#level-title").text("Level " + level);
+    }
+});
+
+
+async function over() {
+    let b = "body";
+    $(b).addClass("game-over");
+    await timer(250);
+    $(b).removeClass("game-over");
+}
+
+function newLevel(){
+    level++;
+    $("#level-title").text("Level " + level);
+    gen(level);
+    displayColors().then();
 }

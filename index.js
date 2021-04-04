@@ -6,18 +6,8 @@ function play_sound() {
     const aud = new Audio("sounds/" + col + ".mp3");
     aud.play().then();
 }
-$("h1").click(function () {
-    if(!game){
-        console.log("Begin");
-        level = 1;
-        game = true;
-        gen(level);
-        displayColors().then();
-        $("#level-title").text("Level " + level);
-    }
-})
 
-$(".btn").click(function () {
+$(".btn").click(function (e) {
     if (game) {
         if (this.id === ord.pop()) {
             col = this.id;
@@ -33,7 +23,7 @@ $(".btn").click(function () {
             play_sound();
             ani().then();
             game = false;
-            $("#level-title").text("Game Over, Press Any Key to Restart, or click me!");
+            $("#level-title").text("Game Over, Press Any Key to Restart, or click anywhere!");
             ord = []
             wrong = true;
             game = false;
@@ -41,8 +31,20 @@ $(".btn").click(function () {
         }
     } else {
         col = this.id;
+        e.stopPropagation();
         play_sound();
         ani().then();
+    }
+});
+
+$("body").click(function () {
+    if(!game){
+        console.log("Begin");
+        level = 1;
+        game = true;
+        gen(level);
+        displayColors().then();
+        $("#level-title").text("Level " + level);
     }
 });
 

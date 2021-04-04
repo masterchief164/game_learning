@@ -6,6 +6,16 @@ function play_sound() {
     const aud = new Audio("sounds/" + col + ".mp3");
     aud.play().then();
 }
+$("h1").click(function () {
+    if(!game){
+        console.log("Begin");
+        level = 1;
+        game = true;
+        gen(level);
+        displayColors().then();
+        $("#level-title").text("Level " + level);
+    }
+})
 
 $(".btn").click(function () {
     if (game) {
@@ -23,7 +33,7 @@ $(".btn").click(function () {
             play_sound();
             ani().then();
             game = false;
-            $("#level-title").text("Game Over, Press Any Key to Restart");
+            $("#level-title").text("Game Over, Press Any Key to Restart, or click me!");
             ord = []
             wrong = true;
             game = false;
